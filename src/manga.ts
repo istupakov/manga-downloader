@@ -21,7 +21,7 @@ module Manga {
         pageList(url: string, chapter: JQuery): string[];
         imageUrl(page: JQuery): string;
 
-        mangaChapterList(url: string): Promise<{ url: string, name: string }[]>;
+        mangaChapterList(url: string, chapter: JQuery): Promise<{ url: string, name: string }[]>;
     }
 
     export interface MangaParser {
@@ -55,7 +55,7 @@ module Manga {
             return {
                 mangaName: this.site.mangaName(content),
                 currentChapterName: this.site.chapterName(content),
-                chapterList: await this.site.mangaChapterList(url)
+                chapterList: await this.site.mangaChapterList(url, content)
             };
         }
 

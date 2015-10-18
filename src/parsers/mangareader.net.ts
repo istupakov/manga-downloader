@@ -1,5 +1,5 @@
-/// <reference path="../typings/tsd.d.ts" />
-/// <reference path="manga.ts" />
+/// <reference path="../../typings/tsd.d.ts" />
+/// <reference path="../manga.ts" />
 'use strict';
 
 class MangaReader implements Manga.MangaSite {
@@ -23,7 +23,7 @@ class MangaReader implements Manga.MangaSite {
 		return page.find('#imgholder img').attr('src');
 	}
 
-	async mangaChapterList(url: string) {
+	async mangaChapterList(url: string, chapter: JQuery) {
 		let baseUrl = this.getBaseUrl(url);
 		let chapters = await Manga.executeScript<{ url: string, name: string }[]>(this.chapterListQuery);
 		return chapters.map(val => {
