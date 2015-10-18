@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"target": "ES6",
+		"noImplicitAny": true,
+		"experimentalAsyncFunctions": true
+	},
+	"exclude": [
+        "node_modules"
+    ]
+}
