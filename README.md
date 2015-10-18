@@ -15,3 +15,7 @@ For build project use command
 ```shell
 grunt
 ```
+
+Can download manga from sites:
+* http://mangafox.me
+* http://www.mangareader.net

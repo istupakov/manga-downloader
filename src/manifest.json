@@ -1,11 +1,15 @@
 {
   "manifest_version": 2,
   "name": "Manga Downloader",
-  "version": "0.1",
-  "version_name": "0.1",
+  "version": "0.8",
+  "version_name": "0.8",
   "description": "Download manga chapters to zip archives",
   "icons": {"128": "manga.png"},
   "permissions": ["activeTab", "downloads", "webNavigation", "http://*/"],
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  },
   "page_action": {
     "default_name": "Manga Downloader",
     "default_icon": "download.png",
