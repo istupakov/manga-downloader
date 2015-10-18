@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Download Manga</title>
+  <script src="jquery.min.js"></script>
+  <script src="zip.js/zip.js"></script>
+  <script src="zip.js/zip-ext.js"></script>
+</head>
+
+<body>
+  <div id="content" style="display: none;">
+    <fieldset>
+      <legend id="header">Download Manga</legend>
+      <select id="selectedChapters" multiple>
+      </select>
+      <br>
+      <button id="downloadCurrent">Download current chapter</button>
+      <button id="downloadSelected">Download selected chapters</button>
+      <br>
+      <div id="progress"></div>
+    </fieldset>
+  </div>
+  <div id="loadingMessage">Loading...</div>
+  <script src="manga.js"></script>
+</body>
+
+</html>
