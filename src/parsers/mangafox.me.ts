@@ -22,7 +22,7 @@ class MangaFox implements Manga.MangaSite {
 		return $.map(pages.slice(0, pages.length - 1), e => baseUrl + $(e).val() + '.html');
 	}
 	imageUrl(page: JQuery) {
-		return page.find('a img').attr('src');
+		return page.find('a img:not(#loading)').attr('src');
 	}
 
 	async mangaChapterList(url: string, chapter: JQuery) {
