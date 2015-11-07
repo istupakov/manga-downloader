@@ -36,3 +36,4 @@ class MangaReader implements Manga.MangaSite {
 }
 
 Manga.mangaParserList['www.mangareader.net'] = Manga.CreateDefaultParser(new MangaReader());
+Manga.mangaParserList['www.mangapanda.com'] = Manga.mangaParserList['www.mangareader.net'];
