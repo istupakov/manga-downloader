@@ -10,7 +10,10 @@ class MangaStream implements Manga.MangaSite {
 		return chapter.find('.subnav a').first().text().trim();
 	}
 	pageList(url: string, chapter: JQuery) {
-		return $.map($(chapter.find('.subnav ul').get(1)).find('a'), e => $(e).attr('href'));
+		let lastPageUrl = $(chapter.find('.subnav ul').get(1)).find('a').last().attr('href');
+		let urlParts = lastPageUrl.match('(.*/)([0-9]+)');
+		return Array(parseInt(urlParts[2])).fill(0).map((v, i) => urlParts[1] + (i+1));		
+		//return $.map($(chapter.find('.subnav ul').get(1)).find('a'), e => $(e).attr('href'));
 	}
 	imageUrl(page: JQuery) {
 		return page.find('a img').attr('src');
