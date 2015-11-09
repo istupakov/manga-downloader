@@ -34,13 +34,14 @@ class Downloader {
         let progress = $('<div/>').appendTo(this.progress);
         let zipUrl = await this.downloadToZip(chapter.pages, index => progress.text(`download page: ${index + 1}/${chapter.pages.length} from ${chapter.name}`));
         progress.remove();
-        chrome.downloads.download({ url: zipUrl, filename: `manga/${chapter.name}.zip` });
+        let filename = chapter.name.replace('?', '').replace(':', ' -');
+        chrome.downloads.download({ url: zipUrl, filename: `manga/${filename}.zip` });
     }
 
     private downloadToZip(files: { url: string, filename: string }[], progress: (index: number) => void) {
         return new Promise<string>(resolve =>
             zip.createWriter(new zip.BlobWriter('application/zip'), writer => {
-                var promise = Promise.resolve();
+                let promise = Promise.resolve();
 
                 files.forEach((file, index) => promise = promise.then(() => {
                     progress(index);
