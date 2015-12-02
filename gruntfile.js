@@ -49,5 +49,5 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask("install", ["tsd", "bower-install-simple"]);
-  grunt.registerTask("default", ["ts", "copy"]);
+  grunt.registerTask("default", ["copy", "ts"]);
 };

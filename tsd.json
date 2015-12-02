@@ -6,25 +6,25 @@
   "bundle": "typings/tsd.d.ts",
   "installed": {
     "jquery/jquery.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
     },
     "chrome/chrome.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
     },
     "webrtc/MediaStream.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
     },
     "zip.js/zip.js.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
     },
     "filewriter/filewriter.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
     },
     "filesystem/filesystem.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
     },
     "es6-promise/es6-promise.d.ts": {
-      "commit": "421d6610bdb09e1015b71f5991d7a68d079eca21"
+      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
     }
   }
 }
