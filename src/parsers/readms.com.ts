@@ -1,5 +1,4 @@
 /// <reference path="../../typings/tsd.d.ts" />
-/// <reference path="../manga.ts" />
 'use strict';
 
 class MangaStream implements Manga.MangaSite {

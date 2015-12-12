@@ -1,5 +1,4 @@
 /// <reference path="../../typings/tsd.d.ts" />
-/// <reference path="../manga.ts" />
 'use strict';
 
 class MangaFox implements Manga.MangaSite {
@@ -30,7 +29,7 @@ class MangaFox implements Manga.MangaSite {
 
 	async mangaChapterList(url: string, chapter: JQuery) {
 		let baseUrl = this.parseUrl(url).baseUrl;
-		let chapters = await Manga.executeScript<{ url: string, name: string }[]>(this.chapterListQuery);
+		let chapters = await Chrome.executeScript<{ url: string, name: string }[]>(this.chapterListQuery);
 		return chapters.map(val => {
 			return {
 				url: baseUrl + val.url + '/1.html',

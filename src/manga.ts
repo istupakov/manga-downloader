@@ -32,13 +32,9 @@ module Manga {
         getDelay(): number;
     }
 
-    export function executeScript<T>(code: string): Promise<T> {
-        return new Promise<T>(resolve => chrome.tabs.executeScript({ code: code }, result => resolve(result[0])));
-    }
-
     export async function getCurrentUrl(): Promise<Location> {
         var a = document.createElement('a');
-        a.href = await executeScript<string>("window.location.href");
+        a.href = await Chrome.executeScript<string>("window.location.href");
         return <any>a;
     }
 

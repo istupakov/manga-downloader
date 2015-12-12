@@ -5,7 +5,7 @@ const jQueryURL = 'jquery.min.js';
 
 function loadUrlToArrayBuffer(url: string) {
     return new Promise<ArrayBuffer>((resolve, reject) => {
-        var req = new XMLHttpRequest();
+        let req = new XMLHttpRequest();
         req.open('GET', url);
         req.responseType = "arraybuffer";
         req.onload = ev => (req.status == 200) ? resolve(req.response) : reject(Error(`Can't download ${url}: ${req.statusText} (${req.status})`));
@@ -45,10 +45,13 @@ class Downloader {
     private async downloadChapter(chapter: Manga.ChapterDetails) {
         let progress = $('<div/>').appendTo(this.progress);
         try {
-            let zip = await this.downloadToZip(chapter.pages, index => progress.text(`download page: ${index + 1}/${chapter.pages.length} from ${chapter.name}`));
+            let zip = await this.downloadToZip(chapter.pages, index =>
+                progress.text(`download page: ${index + 1}/${chapter.pages.length} from ${chapter.name}`));
+
             let filename = chapter.name.replace('?', '').replace(':', ' -');
             let zipUrl = window.URL.createObjectURL(zip);
-            chrome.downloads.download({ url: zipUrl, filename: `manga/${filename}.zip` }, id => window.URL.revokeObjectURL(zipUrl));
+            await Chrome.download(zipUrl, `manga/${filename}.zip`);
+            window.URL.revokeObjectURL(zipUrl);
         } catch (e) {
             throw Error(`Can't download chapter ${chapter.name}\nDetails:\n${e.message}`);
         } finally {
@@ -57,35 +60,36 @@ class Downloader {
     }
 
     private async downloadToZip(files: { url: string, filename: string }[], progress: (index: number) => void) {
-        var zip = new JSZip();
+        let zip = new JSZip();
         let index = 0;
         for (let file of files) {
             progress(index++);
             zip.file(file.filename, await loadUrlToArrayBuffer(file.url));
             await Manga.delay(this.parser.getDelay());
         }
-        return <Blob>zip.generate({ type: "blob" });
+        return <Blob>zip.generate({ type: 'blob' });
     }
 }
 
-function injectJQuery() {
-    return new Promise<void>(resolve => chrome.tabs.executeScript({ file: jQueryURL }, result => resolve()));
-}
-
 async function initPopup() {
-    await injectJQuery();
-    let url = await Manga.getCurrentUrl();
-    let parser = Manga.mangaParserList[url.host];
-    let manga = await parser.parseManga(url.href);
+    try {
+        await Chrome.injectScript(jQueryURL);
+        let url = await Manga.getCurrentUrl();
+        let parser = Manga.mangaParserList[url.host];
+        let manga = await parser.parseManga(url.href);
 
-    $('#header').text(manga.mangaName);
-    $('#selectedChapters').append(manga.chapterList.map(chapter => $('<option>').val(chapter.url).text(chapter.name)));
-    $('#loadingMessage').hide();
-    $('#content').slideDown('slow');
+        $('#header').text(manga.mangaName);
+        $('#selectedChapters').append(manga.chapterList.map(chapter => $('<option>').val(chapter.url).text(chapter.name)));
+        $('#loadingMessage').hide();
+        $('#content').slideDown('slow');
 
-    let main = new Downloader(parser);
-    $('#downloadCurrent').click(() => main.download(url.href));
-    $('#downloadSelected').click(() => main.downloadMultiple($.map($("option:selected"), e => $(e).val())));
+        let main = new Downloader(parser);
+        $('#downloadCurrent').click(() => main.download(url.href));
+        $('#downloadSelected').click(() => main.downloadMultiple($.map($("option:selected"), e => $(e).val())));
+    } catch (e) {
+        alert("Can't parse manga on current page...");
+        window.close();
+    }
 }
 
 $(() => initPopup());
