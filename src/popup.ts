@@ -1,23 +1,35 @@
 /// <reference path="../typings/tsd.d.ts" />
-/// <reference path="manga.ts" />
 'use strict';
 
 const jQueryURL = 'jquery.min.js';
-const zipJsURL = 'zip.js/';
+
+function loadUrlToArrayBuffer(url: string) {
+    return new Promise<ArrayBuffer>((resolve, reject) => {
+        var req = new XMLHttpRequest();
+        req.open('GET', url);
+        req.responseType = "arraybuffer";
+        req.onload = ev => (req.status == 200) ? resolve(req.response) : reject(Error(`Can't download ${url}: ${req.statusText} (${req.status})`));
+        req.onerror = ev => reject(Error(`Can't download ${url}: Network error`));
+        req.send();
+    });
+}
 
 class Downloader {
-    progress: JQuery;
-    parser: Manga.MangaParser;
+    private progress: JQuery;
+    private parser: Manga.MangaParser;
 
     constructor(parser: Manga.MangaParser) {
         this.parser = parser;
         this.progress = $('#progress');
-        zip.workerScriptsPath = chrome.runtime.getURL(zipJsURL);
     }
 
     async download(url: string) {
-        let chapter = await this.parser.parseChapter(url);
-        await this.downloadChapter(chapter);
+        try {
+            let chapter = await this.parser.parseChapter(url);
+            await this.downloadChapter(chapter);
+        } catch (err) {
+            alert(`Error: ${err.message}`);
+        }
     }
 
     async downloadMultiple(urls: string[]) {
@@ -32,29 +44,32 @@ class Downloader {
 
     private async downloadChapter(chapter: Manga.ChapterDetails) {
         let progress = $('<div/>').appendTo(this.progress);
-        let zipUrl = await this.downloadToZip(chapter.pages, index => progress.text(`download page: ${index + 1}/${chapter.pages.length} from ${chapter.name}`));
-        progress.remove();
-        let filename = chapter.name.replace('?', '').replace(':', ' -');
-        chrome.downloads.download({ url: zipUrl, filename: `manga/${filename}.zip` });
+        try {
+            let zip = await this.downloadToZip(chapter.pages, index => progress.text(`download page: ${index + 1}/${chapter.pages.length} from ${chapter.name}`));
+            let filename = chapter.name.replace('?', '').replace(':', ' -');
+            let zipUrl = window.URL.createObjectURL(zip);
+            chrome.downloads.download({ url: zipUrl, filename: `manga/${filename}.zip` }, id => window.URL.revokeObjectURL(zipUrl));
+        } catch (e) {
+            throw Error(`Can't download chapter ${chapter.name}\nDetails:\n${e.message}`);
+        } finally {
+            progress.remove();
+        }
     }
 
-    private downloadToZip(files: { url: string, filename: string }[], progress: (index: number) => void) {
-        return new Promise<string>(resolve =>
-            zip.createWriter(new zip.BlobWriter('application/zip'), writer => {
-                let promise = Promise.resolve();
-
-                files.forEach((file, index) => promise = promise.then(() => {
-                    progress(index);
-                    return new Promise<void>(resolve => writer.add(file.filename, new zip.HttpReader(file.url), () => resolve()));
-                }));
-
-                promise.then(() => writer.close(result => resolve((<any>window).URL.createObjectURL(result))));
-            }));
+    private async downloadToZip(files: { url: string, filename: string }[], progress: (index: number) => void) {
+        var zip = new JSZip();
+        let index = 0;
+        for (let file of files) {
+            progress(index++);
+            zip.file(file.filename, await loadUrlToArrayBuffer(file.url));
+            await Manga.delay(this.parser.getDelay());
+        }
+        return <Blob>zip.generate({ type: "blob" });
     }
 }
 
-function injectJQuery() {    
-    return new Promise(resolve => chrome.tabs.executeScript({ file: jQueryURL }, result => resolve()));
+function injectJQuery() {
+    return new Promise<void>(resolve => chrome.tabs.executeScript({ file: jQueryURL }, result => resolve()));
 }
 
 async function initPopup() {

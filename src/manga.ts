@@ -22,11 +22,14 @@ module Manga {
         imageUrl(page: JQuery): string;
 
         mangaChapterList(url: string, chapter: JQuery): Promise<{ url: string, name: string }[]>;
+
+        getDelay(): number;
     }
 
     export interface MangaParser {
         parseManga(url: string): Promise<MangaDetails>;
         parseChapter(url: string): Promise<ChapterDetails>;
+        getDelay(): number;
     }
 
     export function executeScript<T>(code: string): Promise<T> {
@@ -37,6 +40,10 @@ module Manga {
         var a = document.createElement('a');
         a.href = await executeScript<string>("window.location.href");
         return <any>a;
+    }
+
+    export function delay(ms: number) {
+        return new Promise<void>(resolve => setTimeout(resolve, ms));
     }
 
     export function CreateDefaultParser(site: MangaSite) {
@@ -66,6 +73,10 @@ module Manga {
                 name: this.site.chapterName(content),
                 pages: await Promise.all(pageList.map((url, index) => this.ParsePage(url, index)))
             };
+        }
+
+        getDelay() {
+            return this.site.getDelay();
         }
 
         protected async ParsePage(url: string, index: number) {

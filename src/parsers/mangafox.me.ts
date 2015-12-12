@@ -24,6 +24,9 @@ class MangaFox implements Manga.MangaSite {
 	imageUrl(page: JQuery) {
 		return page.find('a img:not(#loading)').attr('src');
 	}
+	getDelay() {
+		return 1000;
+	}
 
 	async mangaChapterList(url: string, chapter: JQuery) {
 		let baseUrl = this.parseUrl(url).baseUrl;

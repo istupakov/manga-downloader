@@ -22,6 +22,9 @@ class MangaReader implements Manga.MangaSite {
 	imageUrl(page: JQuery) {
 		return page.find('#imgholder img').attr('src');
 	}
+	getDelay() {
+		return 100;
+	}
 
 	async mangaChapterList(url: string, chapter: JQuery) {
 		let baseUrl = this.getBaseUrl(url);

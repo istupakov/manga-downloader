@@ -18,6 +18,9 @@ class MangaStream implements Manga.MangaSite {
 	imageUrl(page: JQuery) {
 		return page.find('a img').attr('src');
 	}
+	getDelay() {
+		return 100;
+	}
 
 	mangaChapterList(url: string, chapter: JQuery) {
 		let chapters = chapter.find('.subnav ul').first().find('a');

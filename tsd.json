@@ -5,26 +5,26 @@
   "path": "typings",
   "bundle": "typings/tsd.d.ts",
   "installed": {
-    "jquery/jquery.d.ts": {
-      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
-    },
-    "chrome/chrome.d.ts": {
-      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
+    "filesystem/filesystem.d.ts": {
+      "commit": "5a8fc5ee71701431e4fdbb80c506e3c13f85a9ff"
     },
     "webrtc/MediaStream.d.ts": {
-      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
-    },
-    "zip.js/zip.js.d.ts": {
-      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
-    },
-    "filewriter/filewriter.d.ts": {
-      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
-    },
-    "filesystem/filesystem.d.ts": {
-      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
+      "commit": "5a8fc5ee71701431e4fdbb80c506e3c13f85a9ff"
     },
     "es6-promise/es6-promise.d.ts": {
-      "commit": "715df764419937a75a25dcd76bfc954157bc7b96"
+      "commit": "5a8fc5ee71701431e4fdbb80c506e3c13f85a9ff"
+    },
+    "filewriter/filewriter.d.ts": {
+      "commit": "5a8fc5ee71701431e4fdbb80c506e3c13f85a9ff"
+    },
+    "chrome/chrome.d.ts": {
+      "commit": "5a8fc5ee71701431e4fdbb80c506e3c13f85a9ff"
+    },
+    "jquery/jquery.d.ts": {
+      "commit": "5a8fc5ee71701431e4fdbb80c506e3c13f85a9ff"
+    },
+    "jszip/jszip.d.ts": {
+      "commit": "5a8fc5ee71701431e4fdbb80c506e3c13f85a9ff"
     }
   }
 }
