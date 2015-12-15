@@ -8,7 +8,7 @@ module.exports = function (grunt) {
     ts: {
       default: {
         files: {
-          'release/manga.js': ['src/*.ts'],
+          'release/manga-downloader/manga.js': ['src/*.ts']
         },
         tsconfig: true,
         options: {
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
           expand: true,
           flatten: true,
           src: ['src/*.js', 'src/*.html', 'src/*.json', 'icons/*.png', 'lib/jquery/dist/jquery.min.js', 'lib/jszip/dist/jszip.min.js'],
-          dest: 'release/'
+          dest: 'release/manga-downloader/'
         }]
       }
     }

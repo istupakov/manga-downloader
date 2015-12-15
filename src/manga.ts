@@ -21,6 +21,12 @@ module Manga {
         getDelay(): number;
     }
 
+    export function createParser(mangaUrl: string) {
+        let a = document.createElement('a');
+        a.href = mangaUrl;
+        return mangaParserList[a.host](a.href)
+    }
+
     export abstract class BaseParser implements MangaParser {
         protected siteUrl: string;
         protected mangaUrl: string;
