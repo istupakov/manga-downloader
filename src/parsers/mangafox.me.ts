@@ -1,42 +1,43 @@
 /// <reference path="../../typings/tsd.d.ts" />
 'use strict';
 
-class MangaFox implements Manga.MangaSite {
-	chapterListQuery = "$.map($('select#top_chapter_list option'), e => { return { url: $(e).val(), name: $(e).text() } })";
-
-	parseUrl(url: string) {
-		var parse = url.match('(http://.*/)([^/]+/[^/]+/)[0-9]+\.html');
-		return { baseUrl: parse[1], chapterUrl: parse[1] + parse[2] };
+class MangaFox extends Manga.BaseParser {
+	constructor(url: string) {
+		let parse = url.match('(http://[^/]+/)[^/]+/[^/]+')
+		super(parse[1], parse[0]);
+		this.delay = 1000;
 	}
 
-	mangaName(chapter: JQuery) {
-		return chapter.find('#series strong a').text();
-	}
-	chapterName(chapter: JQuery) {
-		return chapter.find('#series h1').text();
-	}
-	pageList(url: string, chapter: JQuery) {
-		let baseUrl = this.parseUrl(url).chapterUrl;
-		let pages = chapter.find('select.m').first().find('option');
-		return $.map(pages.slice(0, pages.length - 1), e => baseUrl + $(e).val() + '.html');
-	}
-	imageUrl(page: JQuery) {
-		return page.find('a img:not(#loading)').attr('src');
-	}
-	getDelay() {
-		return 1000;
+	protected getMangaName(catalog: JQuery) {
+		return catalog.find('#title h1').text();
 	}
 
-	async mangaChapterList(url: string, chapter: JQuery) {
-		let baseUrl = this.parseUrl(url).baseUrl;
-		let chapters = await Chrome.executeScript<{ url: string, name: string }[]>(this.chapterListQuery);
-		return chapters.map(val => {
+	protected getMangaCoverUrl(catalog: JQuery) {
+		return catalog.find('.cover img').attr('src');
+	}
+
+	protected getChapters(catalog: JQuery) {
+		let chapters = catalog.find('ul.chlist li :header').toArray();
+		return chapters.map(elem => {
+			let chapter = $(elem);
+			let url = chapter.find('a').attr('href');
 			return {
-				url: baseUrl + val.url + '/1.html',
-				name: val.name
-			}
+				name: `${chapter.find('a').text() }: ${chapter.find('span').text() }`,
+				url,
+				getPages: () => this.getChapterPages(url)
+			};
 		});
+	}
+
+	protected getPages(chapter: JQuery, url: string) {
+		let chapterUrl = url.match('(.*)[0-9]+\.html')[1];
+		let pages = chapter.find('select.m').first().find('option').toArray();
+		return pages.slice(0, pages.length - 1).map(e => chapterUrl + $(e).val() + '.html');
+	}
+
+	protected getImageUrl(page: JQuery) {
+		return page.find('a img:not(#loading)').attr('src');
 	}
 }
 
-Manga.mangaParserList['mangafox.me'] = Manga.CreateDefaultParser(new MangaFox());
+Manga.mangaParserList['mangafox.me'] = url => new MangaFox(url);

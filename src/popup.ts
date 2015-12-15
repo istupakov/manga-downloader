@@ -1,7 +1,9 @@
 /// <reference path="../typings/tsd.d.ts" />
 'use strict';
 
-const jQueryURL = 'jquery.min.js';
+function delay(ms: number) {
+    return new Promise<void>(resolve => setTimeout(resolve, ms));
+}
 
 function loadUrlToArrayBuffer(url: string) {
     return new Promise<ArrayBuffer>((resolve, reject) => {
@@ -14,58 +16,69 @@ function loadUrlToArrayBuffer(url: string) {
     });
 }
 
+function download(url: string, filename: string) {
+    return new Promise<void>(resolve => chrome.downloads.download({ url, filename }, id => resolve()));
+}
+
+function getCurrentUrl() {
+    return new Promise<Location>(resolve => chrome.tabs.query({ active: true }, tabs => {
+        let a = document.createElement('a');
+        a.href = tabs[0].url;
+        resolve(<any>a);
+    }));
+}
+
+function paddedNumber(index: number) {
+    let s = '00' + index;
+    return s.substr(s.length - 3);
+}
+
 class Downloader {
     private progress: JQuery;
-    private parser: Manga.MangaParser;
+    private manga: Manga.Manga;
+    private delay: number;
 
-    constructor(parser: Manga.MangaParser) {
-        this.parser = parser;
+    constructor(manga: Manga.Manga, delay?: number) {
+        this.manga = manga;
+        this.delay = delay || 100;
         this.progress = $('#progress');
     }
 
-    async download(url: string) {
-        try {
-            let chapter = await this.parser.parseChapter(url);
-            await this.downloadChapter(chapter);
-        } catch (err) {
-            alert(`Error: ${err.message}`);
-        }
-    }
-
-    async downloadMultiple(urls: string[]) {
-        let elapsed = urls.length;
+    async downloadMultiple(indices: number[]) {
+        let elapsed = indices.length;
         let progress = $('<div/>').appendTo(this.progress);
-        for (let url of urls) {
-            progress.text(`elapsed chapters: ${elapsed--}/${urls.length}`);
-            await this.download(url);
+        for (let index of indices) {
+            progress.text(`elapsed chapters: ${elapsed--}/${indices.length}`);
+            await this.download(this.manga.chapterList[index]);
         }
         progress.remove();
     }
 
-    private async downloadChapter(chapter: Manga.ChapterDetails) {
+    public async download(chapter: Manga.Chapter) {
         let progress = $('<div/>').appendTo(this.progress);
         try {
-            let zip = await this.downloadToZip(chapter.pages, index =>
-                progress.text(`download page: ${index + 1}/${chapter.pages.length} from ${chapter.name}`));
+            let pages = await chapter.getPages();
+            let zip = await this.downloadToZip(pages, index =>
+                progress.text(`download page: ${index}/${pages.length} from ${chapter.name}`));
 
             let filename = chapter.name.replace('?', '').replace(':', ' -');
             let zipUrl = window.URL.createObjectURL(zip);
-            await Chrome.download(zipUrl, `manga/${filename}.zip`);
+            await download(zipUrl, `manga/${filename}.zip`);
             window.URL.revokeObjectURL(zipUrl);
         } catch (e) {
-            throw Error(`Can't download chapter ${chapter.name}\nDetails:\n${e.message}`);
+            alert(`Error: Can't download chapter ${chapter.name}\nDetails:\n${e.message}`);
         } finally {
             progress.remove();
         }
     }
 
-    private async downloadToZip(files: { url: string, filename: string }[], progress: (index: number) => void) {
+    private async downloadToZip(urls: string[], progress: (index: number) => void) {
         let zip = new JSZip();
         let index = 0;
-        for (let file of files) {
-            progress(index++);
-            zip.file(file.filename, await loadUrlToArrayBuffer(file.url));
-            await Manga.delay(this.parser.getDelay());
+        for (let url of urls) {
+            progress(++index);
+            zip.file(`${paddedNumber(index) }.jpg`, await loadUrlToArrayBuffer(url));
+            await delay(this.delay);
         }
         return <Blob>zip.generate({ type: 'blob' });
     }
@@ -73,21 +86,30 @@ class Downloader {
 
 async function initPopup() {
     try {
-        await Chrome.injectScript(jQueryURL);
-        let url = await Manga.getCurrentUrl();
-        let parser = Manga.mangaParserList[url.host];
-        let manga = await parser.parseManga(url.href);
+        let url = await getCurrentUrl();
+        let parser = Manga.mangaParserList[url.host](url.href);
+        let manga = await parser.parseManga();
+        if (manga.chapterList.length === 0) {
+            throw Error();
+        }
 
-        $('#header').text(manga.mangaName);
-        $('#selectedChapters').append(manga.chapterList.map(chapter => $('<option>').val(chapter.url).text(chapter.name)));
+        $('#header').text(manga.name);
+        $('#selectedChapters').append(manga.chapterList.map((chapter, i) => $('<option>').val(i).text(chapter.name)));
         $('#loadingMessage').hide();
         $('#content').slideDown('slow');
 
-        let main = new Downloader(parser);
-        $('#downloadCurrent').click(() => main.download(url.href));
+        let main = new Downloader(manga, parser.getDelay());
         $('#downloadSelected').click(() => main.downloadMultiple($.map($("option:selected"), e => $(e).val())));
+
+        let currentChapter = manga.chapterList.find(c => c.url === url.href);
+        if (currentChapter) {
+            $('#downloadCurrent').click(() => main.download(currentChapter));
+        } else {
+            $('#downloadCurrent').hide();
+        }
+        
     } catch (e) {
-        alert("Can't parse manga on current page...");
+        alert("Can`t find manga on current page...");
         window.close();
     }
 }

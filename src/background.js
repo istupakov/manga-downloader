@@ -1,9 +1,7 @@
 'use strict';
-chrome.webNavigation.onCompleted.addListener(details => chrome.pageAction.show(details.tabId), {
-    url: [
-        { hostSuffix: 'mangareader.net', urlMatches: ".*/[0-9]+" },
-        { hostSuffix: 'mangapanda.com', urlMatches: ".*/[0-9]+" },
-        { hostSuffix: 'mangafox.me', urlMatches: ".*/c[0-9]+/[0-9]+\.html" },
-        { hostSuffix: 'readms.com', urlMatches: ".*/[0-9]+/[0-9]+/[0-9]+" },
-    ]
-});
+var sites = ['www.mangareader.net', 'www.mangapanda.com', 'mangafox.me', 'readms.com', 'mangastream.com'];
+chrome.webNavigation.onCompleted.addListener(details => {
+    if (details.url.match("//[^/]+/.+")) {
+        chrome.pageAction.show(details.tabId);
+    }
+}, { url: sites.map(site => ({ hostEquals: site })) });

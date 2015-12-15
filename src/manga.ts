@@ -2,94 +2,64 @@
 'use strict';
 
 module Manga {
-    export var mangaParserList: { [index: string]: MangaParser } = {};
+    export var mangaParserList: { [index: string]: (url: string) => MangaParser } = {};
 
-    export interface MangaDetails {
-        mangaName: string;
-        currentChapterName: string;
-        chapterList: { url: string, name: string }[];
-    }
-
-    export interface ChapterDetails {
+    export interface Manga {
         name: string;
-        pages: { url: string, filename: string }[];
+        coverUrl: string;
+        chapterList: Chapter[];
     }
 
-    export interface MangaSite {
-        mangaName(chapter: JQuery): string;
-        chapterName(chapter: JQuery): string;
-        pageList(url: string, chapter: JQuery): string[];
-        imageUrl(page: JQuery): string;
-
-        mangaChapterList(url: string, chapter: JQuery): Promise<{ url: string, name: string }[]>;
-
-        getDelay(): number;
+    export interface Chapter {
+        name: string;
+        url: string;
+        getPages(): Promise<string[]>;
     }
 
     export interface MangaParser {
-        parseManga(url: string): Promise<MangaDetails>;
-        parseChapter(url: string): Promise<ChapterDetails>;
+        parseManga(): Promise<Manga>;
         getDelay(): number;
     }
 
-    export async function getCurrentUrl(): Promise<Location> {
-        var a = document.createElement('a');
-        a.href = await Chrome.executeScript<string>("window.location.href");
-        return <any>a;
-    }
+    export abstract class BaseParser implements MangaParser {
+        protected siteUrl: string;
+        protected mangaUrl: string;
+        protected delay: number = 100;
 
-    export function delay(ms: number) {
-        return new Promise<void>(resolve => setTimeout(resolve, ms));
-    }
-
-    export function CreateDefaultParser(site: MangaSite) {
-        return new DefaultMangaParser(site);
-    }
-
-    class DefaultMangaParser implements Manga.MangaParser {
-        protected site: MangaSite;
-
-        constructor(site: MangaSite) {
-            this.site = site;
+        protected abstract getMangaName(catalog: JQuery): string;
+        protected abstract getChapters(catalog: JQuery): Chapter[];
+        protected abstract getPages(chapter: JQuery, url: string): string[];
+        protected abstract getImageUrl(page: JQuery): string;
+        protected getMangaCoverUrl(catalog: JQuery): string {
+            return undefined;
         }
 
-        async parseManga(url: string) {
-            let content = await this.getJQuery(url);
-            return {
-                mangaName: this.site.mangaName(content),
-                currentChapterName: this.site.chapterName(content),
-                chapterList: await this.site.mangaChapterList(url, content)
-            };
+        protected async getChapterPages(url: string) {
+            let data = await this.getJQuery(url);
+            let pages = this.getPages(data, url);
+            return await Promise.all(pages.map(async(page) => this.getImageUrl(await this.getJQuery(page))));
         }
 
-        async parseChapter(url: string) {
-            let content = await this.getJQuery(url);
-            let pageList = this.site.pageList(url, content);
+        private getJQuery(url: string) {
+            return Promise.resolve($.get(url)).then(data => $(data));
+        }
+
+        constructor(siteUrl: string, mangaUrl: string) {
+            this.siteUrl = siteUrl;
+            this.mangaUrl = mangaUrl;
+        }
+
+        async parseManga() {
+            let data = await this.getJQuery(this.mangaUrl);
             return {
-                name: this.site.chapterName(content),
-                pages: await Promise.all(pageList.map((url, index) => this.ParsePage(url, index)))
+                name: this.getMangaName(data),
+                coverUrl: this.getMangaCoverUrl(data),
+                chapterList: this.getChapters(data),
             };
         }
 
         getDelay() {
-            return this.site.getDelay();
-        }
-
-        protected async ParsePage(url: string, index: number) {
-            let content = await this.getJQuery(url);
-            return {
-                url: this.site.imageUrl(content),
-                filename: this.paddedNumber(index) + '.jpg'
-            }
-        }
-
-        protected paddedNumber(index: number) {
-            let s = '00' + (index + 1);
-            return s.substr(s.length - 3);
-        }
-
-        protected getJQuery(url: string) {
-            return Promise.resolve($.get(url)).then(data => $(data));
+            return this.delay;
         }
     }
 }
