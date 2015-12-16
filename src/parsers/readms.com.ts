@@ -13,15 +13,7 @@ class MangaStream extends Manga.BaseParser {
 
     protected getChapters(catalog: JQuery) {
         let chapters = catalog.find('.span8 td a').toArray();
-        return chapters.map(elem => {
-            let chapter = $(elem);
-            let url = chapter.attr('href');
-            return {
-                name: chapter.text(),
-                url,
-                getPages: () => this.getChapterPages(url)
-            };
-        });
+        return chapters.map($).map(chapter => this.getChapter(chapter.attr('href'), chapter.text()));
     }
 
     protected getPages(chapter: JQuery, url: string) {

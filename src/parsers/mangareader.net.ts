@@ -17,15 +17,10 @@ class MangaReader extends Manga.BaseParser {
 
     protected getChapters(catalog: JQuery) {
         let chapters = catalog.find('#listing tr').find('td:first').toArray();
-        return chapters.map(elem => {
-            let chapter = $(elem);
+        return chapters.map($).map(chapter => {
             let url = this.siteUrl + chapter.find('a').attr('href');
             let desc = chapter.contents().filter((i, e) => e.nodeType === 3).text().trim();
-            return {
-                name: chapter.find('a').text() + desc,
-                url,
-                getPages: () => this.getChapterPages(url)
-            };
+            return this.getChapter(url, chapter.find('a').text() + desc);
         });
     }
 

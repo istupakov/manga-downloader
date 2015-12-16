@@ -5,7 +5,7 @@ class MangaFox extends Manga.BaseParser {
 	constructor(url: string) {
 		let parse = url.match('(http://[^/]+/)[^/]+/[^/]+')
 		super(parse[1], parse[0]);
-		this.delay = 1000;
+		this.delayTime = 1000;
 	}
 
 	protected getMangaName(catalog: JQuery) {
@@ -18,15 +18,10 @@ class MangaFox extends Manga.BaseParser {
 
 	protected getChapters(catalog: JQuery) {
 		let chapters = catalog.find('ul.chlist li :header').toArray();
-		return chapters.map(elem => {
-			let chapter = $(elem);
-			let url = chapter.find('a').attr('href');
-			return {
-				name: `${chapter.find('a').text() }: ${chapter.find('span').text() }`,
-				url,
-				getPages: () => this.getChapterPages(url)
-			};
-		});
+		return chapters.map($).map(chapter =>
+			this.getChapter(chapter.find('a').attr('href'),
+				`${chapter.find('a').text() }: ${chapter.find('span').text() }`
+			));
 	}
 
 	protected getPages(chapter: JQuery, url: string) {

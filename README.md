@@ -15,6 +15,7 @@ grunt
 
 Can download manga from sites:
 * http://mangafox.me
+* http://mangago.me
 * http://www.mangareader.net
 * http://www.mangapanda.com
 * http://readms.com

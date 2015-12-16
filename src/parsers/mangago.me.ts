@@ -3,8 +3,8 @@
 
 class MangaGo extends Manga.BaseParser {
     constructor(url: string) {
-		let parse = url.match('(http://[^/]+/)[^/]+/[^/]+')
-		super(parse[1], parse[0]);
+        let parse = url.match('(http://[^/]+/)[^/]+/[^/]+')
+        super(parse[1], parse[0]);
     }
 
     protected getMangaName(catalog: JQuery) {
@@ -17,15 +17,7 @@ class MangaGo extends Manga.BaseParser {
 
     protected getChapters(catalog: JQuery) {
         let chapters = catalog.find('#chapter_table tr').find('td:first a').toArray();
-        return chapters.map(elem => {
-            let chapter = $(elem);
-            let url = chapter.attr('href');
-            return {
-                name: chapter.text().trim(),
-                url,
-                getPages: () => this.getChapterPages(url)
-            };
-        });
+        return chapters.map($).map(chapter => this.getChapter(chapter.attr('href'), chapter.text().trim()));
     }
 
     protected getPages(chapter: JQuery, url: string) {
