@@ -103,21 +103,21 @@ async function initPopup() {
         }
 
         $('#header').text(manga.name);
-        $('#selectedChapters').height(300).width(400).append(
-            manga.chapterList.map((chapter, i) => $('<option>').val(i).text(chapter.name)));
-        $('#loadingMessage').hide();
-        $('#content').slideDown('slow');
+        if (manga.cover) {
+            $('#cover').attr('src', manga.cover.url).show();
+        }
+        $('#chapterList').append(manga.chapterList.map((chapter, i) => $('<option>').val(i).text(chapter.name)));
 
         let main = new Downloader(manga);
         $('#downloadSelected').click(() => main.downloadMultiple());
         $('#downloadSelected2').click(() => main.downloadMultiple2());
 
         if (manga.currentChapter) {
-            $('#downloadCurrent').click(() => main.download(manga.currentChapter));
-        } else {
-            $('#downloadCurrent').hide();
+            $('#downloadCurrent').click(() => main.download(manga.currentChapter)).show();
         }
 
+        $('#loadingMessage').hide();
+        $('#content').slideDown('slow');
     } catch (e) {
         alert("Can't find manga on current page...");
         window.close();

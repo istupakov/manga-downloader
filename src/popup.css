@@ -1,0 +1,30 @@
+div, img, button, h2, select{
+    margin: 3px;
+}
+#content{
+    min-width: 500px;    
+}
+h2{
+    text-align: center;
+    font-family: cursive;
+}
+.row{
+    margin: 0px;
+    display: flex;
+}
+#cover {
+    max-width: 150px;
+    height: 100%; 
+    width: 100%; 
+}
+#chapterList{
+    flex: 1;
+    height: auto;
+    min-height: 150px;
+}
+button{    
+    display: block;
+}
+#content, #cover, #downloadCurrent{
+    display: none;
+}

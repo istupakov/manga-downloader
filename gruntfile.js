@@ -37,7 +37,8 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     flatten: true,
-                    src: ['src/*.js', 'src/*.html', 'src/*.json', 'icons/*.png', 'lib/jquery/dist/jquery.min.js', 'lib/jszip/dist/jszip.min.js'],
+                    src: ['src/*.js', 'src/*.html', 'src/*.json', 'src/*.css', 'icons/*.png',
+                        'lib/jquery/dist/jquery.min.js', 'lib/jszip/dist/jszip.min.js'],
                     dest: 'release/manga-downloader/'
                 }]
             }
