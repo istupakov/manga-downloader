@@ -1,33 +1,36 @@
 /// <reference path="../../typings/tsd.d.ts" />
 'use strict';
 
-class MangaGo extends Manga.BaseParser {
-    constructor(url: string) {
-        let parse = url.match('(http://[^/]+/)[^/]+/[^/]+')
-        super(parse[1], parse[0]);
+class MangaGo implements Manga.SiteParser {
+    delayTime: number = 100;
+
+    parseUrl(url: string) {
+        return Manga.parseMangaUrl(url, '/read-manga/[^/]+', '.+/c[^/]+');
     }
 
-    protected getMangaName(catalog: JQuery) {
-        return catalog.find('.manga_title h1').text().trim();
+    async parseChapter(url: string) {
+        let chapter = await Manga.getJQuery(url);
+        let siteUrl = this.parseUrl(url).siteUrl;
+
+        let pagesUrls = chapter.find('#dropdown-menu-page a').toArray().map(e => siteUrl + $(e).attr('href'));
+        let pages = await Manga.getJQuery(pagesUrls);
+
+        return pages.map(page => new Manga.Image(page.find('img').attr('src'), this.delayTime))
     }
 
-    protected getMangaCoverUrl(catalog: JQuery) {
-        return catalog.find('.cover img').attr('src');
-    }
+    async parseManga(url: string) {
+        let catalog = await Manga.getJQuery(url);
+        let chapters = catalog.find('#chapter_table tr').find('td:first a').toArray().map($);
 
-    protected getChapters(catalog: JQuery) {
-        let chapters = catalog.find('#chapter_table tr').find('td:first a').toArray();
-        return chapters.map($).map(chapter => this.getChapter(chapter.attr('href'), chapter.text().trim()));
-    }
-
-    protected getPages(chapter: JQuery, url: string) {
-        let pages = chapter.find('#dropdown-menu-page a').toArray();
-        return pages.map(e => this.siteUrl + $(e).attr('href'));
-    }
-
-    protected getImageUrl(page: JQuery) {
-        return page.find('img').attr('src');
+        return {
+            name: catalog.find('.manga_title h1').text().trim(),
+            cover: new Manga.Image(catalog.find('.cover img').attr('src'), this.delayTime),
+            chapterList: chapters.map(chapter => ({
+                url: chapter.attr('href'),
+                name: chapter.text().trim()
+            }))
+        };
     }
 }
 
-Manga.mangaParserList['www.mangago.me'] = url => new MangaGo(url);
+Manga.Parser.addParser('www.mangago.me', new MangaGo());

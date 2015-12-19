@@ -1,38 +1,38 @@
 /// <reference path="../../typings/tsd.d.ts" />
 'use strict';
 
-class MangaReader extends Manga.BaseParser {
-    constructor(url: string) {
-        let parse = url.match('(http://[^/]+)/[^/]+');
-        super(parse[1], parse[0]);
+class MangaReader implements Manga.SiteParser {
+    delayTime: number = 100;
+
+    parseUrl(url: string) {
+        return Manga.parseMangaUrl(url, '/[^/]+', '/[^/]+');
     }
 
-    protected getMangaName(catalog: JQuery) {
-        return catalog.find('#mangaproperties h1').text();
+    async parseChapter(url: string) {
+        let siteUrl = this.parseUrl(url).siteUrl;
+        let chapter = await Manga.getJQuery(url);
+
+        let pagesUrls = chapter.find('select#pageMenu option').toArray().map(e => siteUrl + $(e).val());
+        let pages = await Manga.getJQuery(pagesUrls);
+
+        return pages.map(page => new Manga.Image(page.find('#imgholder img').attr('src'), this.delayTime))
     }
 
-    protected getMangaCoverUrl(catalog: JQuery) {
-        return catalog.find('#mangaimg img').attr('src');
-    }
+    async parseManga(url: string) {
+        let catalog = await Manga.getJQuery(url);
+        let chapters = catalog.find('#listing tr').find('td:first').toArray().map($);
+        let siteUrl = this.parseUrl(url).siteUrl;
 
-    protected getChapters(catalog: JQuery) {
-        let chapters = catalog.find('#listing tr').find('td:first').toArray();
-        return chapters.map($).map(chapter => {
-            let url = this.siteUrl + chapter.find('a').attr('href');
-            let desc = chapter.contents().filter((i, e) => e.nodeType === 3).text().trim();
-            return this.getChapter(url, chapter.find('a').text() + desc);
-        });
-    }
-
-    protected getPages(chapter: JQuery, url: string) {
-        let pages = chapter.find('select#pageMenu option').toArray();
-        return pages.map(e => this.siteUrl + $(e).val());
-    }
-
-    protected getImageUrl(page: JQuery) {
-        return page.find('#imgholder img').attr('src');
+        return {
+            name: catalog.find('#mangaproperties h1').text(),
+            cover: new Manga.Image(catalog.find('#mangaimg img').attr('src'), this.delayTime),
+            chapterList: chapters.map(chapter => ({
+                url: siteUrl + chapter.find('a').attr('href'),
+                name: chapter.find('a').text() + chapter.contents().filter((i, e) => e.nodeType === 3).text().trim()
+            }))
+        };
     }
 }
 
-Manga.mangaParserList['www.mangareader.net'] = url => new MangaReader(url);
-Manga.mangaParserList['www.mangapanda.com'] = Manga.mangaParserList['www.mangareader.net'];
+Manga.Parser.addParser('www.mangareader.net', new MangaReader());
+Manga.Parser.addParser('www.mangapanda.com', new MangaReader());

@@ -1,13 +1,16 @@
 {
-	"version": "0.1.0",
-	"command": "grunt",
-	"isShellCommand": true,
-	"tasks": [
-		{
-			"taskName": "default",
-			"isBuildCommand": true,
-			"problemMatcher": "$tsc",
-			"showOutput": "silent"
-		}
-	]
+    "version": "0.1.0",
+    "command": "grunt",
+    "isShellCommand": true,
+    "tasks": [
+        {
+            "taskName": "default",
+            "isBuildCommand": true,
+            "problemMatcher": {
+                "base": "$tsc",
+                "fileLocation": "absolute"
+            },
+            "showOutput": "silent"
+        }
+    ]
 }

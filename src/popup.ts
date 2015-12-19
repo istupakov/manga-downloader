@@ -82,11 +82,11 @@ class Downloader {
     private async loadToZip(chapter: Manga.Chapter, zip: JSZip) {
         let progress = $('<div/>').appendTo(this.progress);
         try {
-            let pages = await chapter.getPages();
+            let pages = await Manga.Parser.parseChapter(chapter.url);
             let index = 0;
             for (let page of pages) {
                 progress.text(`download page: ${++index}/${pages.length} from ${chapter.name}`);
-                zip.file(`${paddedNumber(index)}.jpg`, await page.getArrayBuffer(true));
+                zip.file(`${paddedNumber(index)}.jpg`, await page.getAsArrayBuffer(true));
             }
         } finally {
             progress.remove();
@@ -97,8 +97,7 @@ class Downloader {
 async function initPopup() {
     try {
         let url = await getCurrentUrl();
-        let parser = Manga.createParser(url);
-        let manga = await parser.parseManga();
+        let manga = await Manga.Parser.parseManga(url);
         if (manga.chapterList.length === 0) {
             throw Error();
         }
@@ -113,9 +112,8 @@ async function initPopup() {
         $('#downloadSelected').click(() => main.downloadMultiple());
         $('#downloadSelected2').click(() => main.downloadMultiple2());
 
-        let currentChapter = manga.chapterList.find(c => c.url === url);
-        if (currentChapter) {
-            $('#downloadCurrent').click(() => main.download(currentChapter));
+        if (manga.currentChapter) {
+            $('#downloadCurrent').click(() => main.download(manga.currentChapter));
         } else {
             $('#downloadCurrent').hide();
         }
