@@ -11,9 +11,11 @@ module.exports = function (grunt) {
                     'release/manga-downloader/manga.js': ['src/manga.ts', 'src/parsers/*.ts', 'src/popup.ts'],
                     'release/manga-downloader/background.js': ['src/manga.ts', 'src/parsers/*.ts', 'src/background.ts']
                 },
-                tsconfig: true,
                 options: {
+                    fast: 'never',
+                    target: 'es2015',
                     inlineSources: true,
+                    sourceMap: true
                 }
             }
         },
