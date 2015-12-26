@@ -1,8 +1,10 @@
 {
-	"compilerOptions": {
-		"target": "ES6"
-	},
-	"exclude": [
-		"node_modules", "lib", "release"
-	]
+    "compilerOptions": {
+        "target": "ES6"
+    },
+    "exclude": [
+        "node_modules",
+        "bower_components",
+        "release"
+    ]
 }

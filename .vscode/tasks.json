@@ -1,6 +1,6 @@
 {
     "version": "0.1.0",
-    "command": "grunt",
+    "command": "gulp",
     "isShellCommand": true,
     "tasks": [
         {

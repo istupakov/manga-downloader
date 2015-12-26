@@ -3,14 +3,12 @@
 
 For install project dependencies use commands
 ```shell
-npm install -g grunt-cli
-npm install
-grunt install
+npm install && gulp install
 ```
 
 For build project use command
 ```shell
-grunt
+gulp
 ```
 
 Can download manga from sites:
