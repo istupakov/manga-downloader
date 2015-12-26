@@ -8,8 +8,8 @@ module.exports = function (grunt) {
         ts: {
             default: {
                 files: {
-                    'release/manga-downloader/manga.js': ['src/manga.ts', 'src/parsers/*.ts', 'src/popup.ts'],
-                    'release/manga-downloader/background.js': ['src/manga.ts', 'src/parsers/*.ts', 'src/background.ts']
+                    'release/manga-downloader/manga.js': ['src/utils.ts', 'src/manga.ts', 'src/parsers/*.ts', 'src/popup.ts'],
+                    'release/manga-downloader/background.js': ['src/utils.ts', 'src/manga.ts','src/parsers/*.ts', 'src/background.ts']
                 },
                 options: {
                     fast: 'never',

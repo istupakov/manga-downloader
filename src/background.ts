@@ -2,7 +2,7 @@
 'use strict';
 
 chrome.webNavigation.onCompleted.addListener(details => {
-    if (Manga.Parser.parseUrl(details.url).mangaUrl) {
+    if (Manga.defaultParser.parseUrl(details.url).mangaUrl) {
         chrome.pageAction.show(details.tabId);
     }
-}, { url: Manga.Parser.getSites().map(site => ({ hostEquals: site })) });
+}, { url: Manga.defaultParser.getSites().map(site => ({ hostEquals: site })) });

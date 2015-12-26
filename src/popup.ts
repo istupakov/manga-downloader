@@ -6,7 +6,8 @@ function download(url: string, filename: string) {
 }
 
 function getCurrentUrl() {
-    return new Promise<string>(resolve => chrome.tabs.query({ active: true }, tabs => resolve(tabs[0].url)));
+    return new Promise<string>(resolve => chrome.tabs.query({ active: true },
+        tabs => resolve(tabs.find(tab => tab.url != undefined).url)));
 }
 
 function paddedNumber(index: number) {
@@ -82,7 +83,7 @@ class Downloader {
     private async loadToZip(chapter: Manga.Chapter, zip: JSZip) {
         let progress = $('<div/>').appendTo(this.progress);
         try {
-            let pages = await Manga.Parser.parseChapter(chapter.url);
+            let pages = await Manga.defaultParser.parseChapter(chapter.url);
             let index = 0;
             for (let page of pages) {
                 progress.text(`download page: ${++index}/${pages.length} from ${chapter.name}`);
@@ -97,7 +98,7 @@ class Downloader {
 async function initPopup() {
     try {
         let url = await getCurrentUrl();
-        let manga = await Manga.Parser.parseManga(url);
+        let manga = await Manga.defaultParser.parseManga(url);
         if (manga.chapterList.length === 0) {
             throw Error();
         }
@@ -106,7 +107,13 @@ async function initPopup() {
         if (manga.cover) {
             $('#cover').attr('src', manga.cover.url).show();
         }
-        $('#chapterList').append(manga.chapterList.map((chapter, i) => $('<option>').val(i).text(chapter.name)));
+
+        if (manga.volumeList) {
+            $('#chapterList').append(manga.volumeList.map(volume => $('<optgroup>').attr({ label: volume.name })
+                .append(volume.chapterList.map(((chapter, i) => $('<option>').val(i).text(chapter.name))))));
+        } else {
+            $('#chapterList').append(manga.chapterList.map((chapter, i) => $('<option>').val(i).text(chapter.name)));
+        }
 
         let main = new Downloader(manga);
         $('#downloadSelected').click(() => main.downloadMultiple());
