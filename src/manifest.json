@@ -8,7 +8,7 @@
   "icons": {"128": "manga.png"},
   "permissions": ["activeTab", "downloads", "webNavigation", "http://*/"],
   "background": {
-    "scripts": ["background.js"],
+    "scripts": ["manga.js", "background.js"],
     "persistent": false
   },
   "page_action": {

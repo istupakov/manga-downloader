@@ -8,14 +8,14 @@ module.exports = function (grunt) {
         ts: {
             default: {
                 files: {
-                    'release/manga-downloader/manga.js': ['src/utils.ts', 'src/manga.ts', 'src/parsers/*.ts', 'src/popup.ts'],
-                    'release/manga-downloader/background.js': ['src/utils.ts', 'src/manga.ts','src/parsers/*.ts', 'src/background.ts']
+                    'release/manga-downloader/manga.js': ['src/utils.ts', 'src/manga.ts', 'src/parsers/*.ts'],
+                    'release/manga-downloader/popup.js': ['src/popup.ts'],
+                    'release/manga-downloader/background.js': ['src/background.ts']
                 },
                 options: {
                     fast: 'never',
                     target: 'es2015',
-                    inlineSources: true,
-                    sourceMap: true
+                    sourceRoot: '/src'
                 }
             }
         },
@@ -42,7 +42,11 @@ module.exports = function (grunt) {
                     src: ['src/*.js', 'src/*.html', 'src/*.json', 'src/*.css', 'icons/*.png',
                         'lib/jquery/dist/jquery.min.js', 'lib/jszip/dist/jszip.min.js'],
                     dest: 'release/manga-downloader/'
-                }]
+                }, {
+                        expand: true,
+                        src: ['src/**/*.ts'],
+                        dest: 'release/manga-downloader/'
+                    }]
             }
         }
     });
