@@ -1,5 +1,7 @@
-/// <reference path="../typings/tsd.d.ts" />
 'use strict';
+
+import {Manga, Chapter, default as parser} from './manga';
+import {delay} from './utils'
 
 function download(url: string, filename: string) {
     return new Promise<void>(resolve => chrome.downloads.download({ url, filename }, id => resolve()));
@@ -23,9 +25,9 @@ function toFilename(text: string) {
 
 class Downloader {
     private progress: JQuery;
-    private manga: Manga.Manga;
+    private manga: Manga;
 
-    constructor(manga: Manga.Manga) {
+    constructor(manga: Manga) {
         this.manga = manga;
         this.progress = $('#progress');
     }
@@ -64,7 +66,7 @@ class Downloader {
         }
     }
 
-    public async download(chapter: Manga.Chapter) {
+    public async download(chapter: Chapter) {
         try {
             let zip = new JSZip();
             await this.loadToZip(chapter, zip);
@@ -80,10 +82,10 @@ class Downloader {
         window.URL.revokeObjectURL(zipUrl);
     }
 
-    private async loadToZip(chapter: Manga.Chapter, zip: JSZip) {
+    private async loadToZip(chapter: Chapter, zip: JSZip) {
         let progress = $('<div/>').appendTo(this.progress);
         try {
-            let pages = await Manga.defaultParser.parseChapter(chapter.url);
+            let pages = await parser.parseChapter(chapter.url);
             let index = 0;
             for (let page of pages) {
                 progress.text(`download page: ${++index}/${pages.length} from ${chapter.name}`);
@@ -97,8 +99,9 @@ class Downloader {
 
 async function initPopup() {
     try {
+        //await delay(10000);
         let url = await getCurrentUrl();
-        let manga = await Manga.defaultParser.parseManga(url);
+        let manga = await parser.parseManga(url);
         if (manga.chapterList.length === 0) {
             throw Error();
         }

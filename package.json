@@ -1,20 +1,20 @@
 {
-  "name": "manga-downloader",
-  "version": "1.0.0",
-  "description": "Chrome extension for download manga to zip archives",
-  "author": "Ilya Stupakov",
-  "license": "MIT",
-  "devDependencies": {
-    "gulp": "^3.9.0",
-    "gulp-bower": "0.0.11",
-    "gulp-bower-files": "^0.2.7",
-    "gulp-clean": "^0.3.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-filter": "^3.0.1",
-    "gulp-flatten": "^0.2.0",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-tsd": "0.0.4",
-    "gulp-typescript": "^2.10.0",
-    "main-bower-files": "^2.11.0"
-  }
+    "name": "manga-downloader",
+    "version": "1.0.0",
+    "description": "Chrome extension for download manga to zip archives",
+    "author": "Ilya Stupakov",
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/istupakov/manga-downloader.git"
+    },
+    "main": "./src/manga.ts",
+    "typings": "./src/manga.ts",
+    "devDependencies": {
+        "gulp": "^3.9.0",
+        "main-bower-files": "^2.11.0",
+        "ts-loader": "^0.7.2",
+        "typescript": "^1.7.5",
+        "webpack": "^1.12.9"
+    }
 }

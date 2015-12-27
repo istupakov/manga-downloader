@@ -3,7 +3,8 @@
 
 For install project dependencies use commands
 ```shell
-npm install && gulp install
+npm install -g bower tsd
+npm install && bower install && tsd install
 ```
 
 For build project use command
