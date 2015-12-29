@@ -1,18 +1,17 @@
 'use strict';
 
-import {delay, getData} from "./utils";
-
 export interface Parser {
     parseUrl(url: string): MangaUrl;
-    parseChapter(url: string): Promise<Image[]>
     parseManga(url: string): Promise<Manga>;
+    parseChapter(url: string): Promise<string[]>
+    getDelay(url: string): number;
     getSites(): string[];
 }
 
 export interface Manga {
     name: string;
     url: string;
-    cover?: Image;
+    coverUrl: string;
     chapterList: Chapter[];
     volumeList?: Volume[];
     currentChapter?: Chapter;
@@ -34,6 +33,7 @@ export class MangaUrl {
     siteUrl: string;
     mangaUrl: string;
     chapterUrl: string;
+
     constructor(url: string, mangaRegEx: string, chapterRegEx: string) {
         let site = 'http://[^/]+';
         return {
@@ -44,39 +44,8 @@ export class MangaUrl {
     }
 }
 
-export class Image {
-    url: string;
-    private delayTime: number;
-
-    constructor(url: string, delayTime: number) {
-        this.url = url;
-        this.delayTime = delayTime;
-    }
-
-    getAsBlob(repeatOnErrors?: boolean) {
-        return this.get<Blob>(this.url, 'blob', repeatOnErrors);
-    }
-
-    getAsArrayBuffer(repeatOnErrors?: boolean) {
-        return this.get<ArrayBuffer>(this.url, 'arraybuffer', repeatOnErrors);
-    }
-
-    private async get<T>(url: string, type: string, repeat?: boolean) {
-        while (true) {
-            try {
-                await delay(this.delayTime);
-                return await getData<T>(url, type);
-            } catch (e) {
-                if (!repeat || !confirm(`Error: ${e.message}!\nTry again?`)) {
-                    throw e;
-                }
-            }
-        }
-    }
-}
-
 class DefaultParser implements Parser {
-    private parserList: { [index: string]: Parser } = {}
+    private parserList: { [index: string]: Parser } = {};
 
     private findParser(url: string) {
         let a = document.createElement('a');
@@ -85,7 +54,7 @@ class DefaultParser implements Parser {
     }
 
     async parseManga(url: string) {
-        let parser = this.findParser(url)
+        let parser = this.findParser(url);
         let manga = await parser.parseManga(parser.parseUrl(url).mangaUrl);
 
         let chapterUrl = parser.parseUrl(url).chapterUrl;
@@ -116,6 +85,10 @@ class DefaultParser implements Parser {
     addParser(parser: Parser) {
         for (let host of parser.getSites())
             this.parserList[host] = parser;
+    }
+
+    getDelay(url: string) {
+        return this.findParser(url).getDelay(url);
     }
 
     getSites() {

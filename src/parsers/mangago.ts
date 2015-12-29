@@ -1,11 +1,9 @@
 'use strict';
 
 import {getJQuery} from './../utils';
-import {Image, Parser, MangaUrl} from './../manga';
+import {Parser, MangaUrl} from './../manga';
 
 class MangaGo implements Parser {
-    delayTime: number = 100;
-
     parseUrl(url: string) {
         return new MangaUrl(url, '/read-manga/[^/]+', '.+/c[^/]+');
     }
@@ -16,8 +14,7 @@ class MangaGo implements Parser {
 
         let pagesUrls = chapter.find('#dropdown-menu-page a').toArray().map(e => siteUrl + $(e).attr('href'));
         let pages = await getJQuery(pagesUrls);
-
-        return pages.map(page => new Image(page.find('img').attr('src'), this.delayTime))
+        return pages.map(page => page.find('img').attr('src'));
     }
 
     async parseManga(url: string) {
@@ -27,13 +24,17 @@ class MangaGo implements Parser {
         return {
             url,
             name: catalog.find('.manga_title h1').text().trim(),
-            cover: new Image(catalog.find('.cover img').attr('src'), this.delayTime),
+            coverUrl: catalog.find('.cover img').attr('src'),
             chapterList: chapters.map(chapter => ({
                 url: chapter.attr('href'),
                 name: chapter.text().trim(),
                 date: new Date(chapter.parents('td').next().text())
             }))
         };
+    }
+
+    getDelay() {
+        return 100;
     }
 
     getSites() {

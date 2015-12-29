@@ -1,11 +1,9 @@
 'use strict';
 
 import {getJQuery} from './../utils';
-import {Image, Parser, MangaUrl} from './../manga';
+import {Parser, MangaUrl} from './../manga';
 
 class MangaReader implements Parser {
-    delayTime: number = 100;
-
     parseUrl(url: string) {
         return new MangaUrl(url, '/[^/]+', '/[^/]+');
     }
@@ -16,8 +14,7 @@ class MangaReader implements Parser {
 
         let pagesUrls = chapter.find('select#pageMenu option').toArray().map(e => siteUrl + $(e).val());
         let pages = await getJQuery(pagesUrls);
-
-        return pages.map(page => new Image(page.find('#imgholder img').attr('src'), this.delayTime))
+        return pages.map(page => page.find('#imgholder img').attr('src'));
     }
 
     async parseManga(url: string) {
@@ -28,13 +25,17 @@ class MangaReader implements Parser {
         return {
             url,
             name: catalog.find('#mangaproperties h1').text(),
-            cover: new Image(catalog.find('#mangaimg img').attr('src'), this.delayTime),
+            coverUrl: catalog.find('#mangaimg img').attr('src'),
             chapterList: chapters.map(chapter => ({
                 url: siteUrl + chapter.find('a').attr('href'),
                 name: chapter.find('a').text() + chapter.contents().filter((i, e) => e.nodeType === 3).text().trim(),
                 date: new Date(chapter.next().text())
             }))
         };
+    }
+
+    getDelay() {
+        return 100;
     }
 
     getSites() {

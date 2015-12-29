@@ -1,11 +1,9 @@
 'use strict';
 
 import {getJQuery} from './../utils';
-import {Image, Parser, MangaUrl} from './../manga';
+import {Parser, MangaUrl} from './../manga';
 
 class MangaStream implements Parser {
-    delayTime: number = 100;
-
     parseUrl(url: string) {
         let res = new MangaUrl(url, '/(r|read|manga)/[^/]+', '/[^/]+');
         res.mangaUrl = res.mangaUrl.replace(/\/(r|read)\//, '/manga/');;
@@ -18,9 +16,8 @@ class MangaStream implements Parser {
         let lastPageUrl = $(chapter.find('.subnav ul').get(1)).find('a').last().attr('href');
         let urlParts = lastPageUrl.match('(.*/)([0-9]+)');
         let pagesUrls = Array(parseInt(urlParts[2])).fill(0).map((v, i) => urlParts[1] + (i + 1));
-
         let pages = await getJQuery(pagesUrls);
-        return pages.map(page => new Image(page.find('a img').attr('src'), this.delayTime))
+        return pages.map(page => page.find('a img').attr('src'));
     }
 
     async parseManga(url: string) {
@@ -36,6 +33,10 @@ class MangaStream implements Parser {
                 name: mangaName + ' ' + chapter.text()
             }))
         };
+    }
+
+    getDelay() {
+        return 100;
     }
 
     getSites() {

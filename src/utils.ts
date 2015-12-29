@@ -10,7 +10,19 @@ export function getJQuery(url: string | string[]): any {
     }
 }
 
-export function getData<T>(url: string, type: string) {
+export function delay(delayTime: number) {
+    return new Promise<void>(resolve => setTimeout(resolve, delayTime));
+}
+
+export function getAsBlob(url: string, repeatOnErrors: boolean) {
+    return getDataWithRepeat<Blob>(url, 'blob', repeatOnErrors);
+}
+
+export function getAsArrayBuffer(url: string, repeatOnErrors: boolean) {
+    return getDataWithRepeat<ArrayBuffer>(url, 'arraybuffer', repeatOnErrors);
+}
+
+function getData<T>(url: string, type: string) {
     return new Promise<T>((resolve, reject) => {
         let req = new XMLHttpRequest();
         req.open('GET', url);
@@ -22,6 +34,14 @@ export function getData<T>(url: string, type: string) {
     });
 }
 
-export function delay(delayTime: number) {
-    return new Promise<void>(resolve => setTimeout(resolve, delayTime));
+async function getDataWithRepeat<T>(url: string, type: string, repeat?: boolean) {
+    while (true) {
+        try {
+            return await getData<T>(url, type);
+        } catch (e) {
+            if (!repeat || !confirm(`Error: ${e.message}!\nTry again?`)) {
+                throw e;
+            }
+        }
+    }
 }

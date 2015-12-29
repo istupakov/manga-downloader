@@ -1,6 +1,6 @@
 {
     "name": "manga-downloader",
-    "version": "1.0.0",
+    "version": "1.3.2",
     "description": "Chrome extension for download manga to zip archives",
     "author": "Ilya Stupakov",
     "license": "MIT",

@@ -1,7 +1,7 @@
 'use strict';
 
 import {Manga, Chapter, default as parser} from './manga';
-import {delay} from './utils'
+import {delay, getAsArrayBuffer} from './utils'
 
 function download(url: string, filename: string) {
     return new Promise<void>(resolve => chrome.downloads.download({ url, filename }, id => resolve()));
@@ -85,11 +85,12 @@ class Downloader {
     private async loadToZip(chapter: Chapter, zip: JSZip) {
         let progress = $('<div/>').appendTo(this.progress);
         try {
-            let pages = await parser.parseChapter(chapter.url);
+            let urls = await parser.parseChapter(chapter.url);
             let index = 0;
-            for (let page of pages) {
-                progress.text(`download page: ${++index}/${pages.length} from ${chapter.name}`);
-                zip.file(`${paddedNumber(index)}.jpg`, await page.getAsArrayBuffer(true));
+            for (let url of urls) {
+                progress.text(`download page: ${++index}/${urls.length} from ${chapter.name}`);
+                zip.file(`${paddedNumber(index)}.jpg`, await getAsArrayBuffer(url, true));
+                await delay(parser.getDelay(chapter.url));
             }
         } finally {
             progress.remove();
@@ -107,13 +108,13 @@ async function initPopup() {
         }
 
         $('#header').text(manga.name);
-        if (manga.cover) {
-            $('#cover').attr('src', manga.cover.url).show();
+        if (manga.coverUrl) {
+            $('#cover').attr('src', manga.coverUrl).show();
         }
 
-        if (manga.volumeList) {
+        if (false && manga.volumeList) {
             $('#chapterList').append(manga.volumeList.map(volume => $('<optgroup>').attr({ label: volume.name })
-                .append(volume.chapterList.map(((chapter, i) => $('<option>').val(i).text(chapter.name))))));
+                .append(volume.chapterList.map(((chapter, i) => $('<option>').val(chapter.url).text(chapter.name))))));
         } else {
             $('#chapterList').append(manga.chapterList.map((chapter, i) => $('<option>').val(i).text(chapter.name)));
         }

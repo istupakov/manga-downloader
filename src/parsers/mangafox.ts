@@ -1,13 +1,11 @@
 'use strict';
 
 import {getJQuery} from './../utils';
-import {Image, Parser, MangaUrl} from './../manga';
+import {Parser, MangaUrl} from './../manga';
 
 class MangaFox implements Parser {
-    delayTime: number = 1000;
-
     parseUrl(url: string) {
-        return new MangaUrl(url, '/manga/[^/]+', '/[^/]+/[^/]+');
+        return new MangaUrl(url, '/manga/[^/]+', '.*/c[^/]+');
     }
 
     async parseChapter(url: string) {
@@ -17,8 +15,7 @@ class MangaFox implements Parser {
         let pagesElem = chapter.find('select.m').first().find('option').toArray();
         let pagesUrls = pagesElem.slice(0, pagesElem.length - 1).map(e => chapterUrl + '/' + $(e).val() + '.html');
         let pages = await getJQuery(pagesUrls);
-
-        return pages.map(page => new Image(page.find('a img:not(#loading)').attr('src'), this.delayTime));
+        return pages.map(page => page.find('a img:not(#loading)').attr('src'));
     }
 
     async parseManga(url: string) {
@@ -28,7 +25,7 @@ class MangaFox implements Parser {
         return {
             url,
             name: catalog.find('#title h1').text(),
-            cover: new Image(catalog.find('.cover img').attr('src'), this.delayTime),
+            coverUrl: catalog.find('.cover img').attr('src'),
             chapterList: chapters.map(chapter => ({
                 url: chapter.find(':header a').attr('href'),
                 name: `${chapter.find('a').text()}: ${chapter.find('.title').text()}`,
@@ -36,6 +33,10 @@ class MangaFox implements Parser {
                 volume: chapter.parent().prev().find('.volume').contents().filter((i, e) => e.nodeType === 3).text()
             }))
         };
+    }
+
+    getDelay() {
+        return 1000;
     }
 
     getSites() {
