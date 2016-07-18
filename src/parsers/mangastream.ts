@@ -22,8 +22,8 @@ class MangaStream implements Parser {
 
     async parseManga(url: string) {
         let catalog = await getJQuery(url);
-        let chapters = catalog.find('.span8 td a').toArray().map($);
-        let mangaName = catalog.find('.span8 h1').text();
+        let chapters = catalog.find('.col-sm-8 td a').toArray().map($);
+        let mangaName = catalog.find('.col-sm-8 h1').text();
 
         return {
             url,
