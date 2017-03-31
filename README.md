@@ -1,15 +1,14 @@
 # Manga Downloader
 > Chrome extension for download manga to zip archives.
 
-For install project dependencies use commands
+For install project dependencies use command
 ```shell
-npm install -g bower tsd
-npm install && bower install && tsd install
+npm install
 ```
 
 For build project use command
 ```shell
-gulp
+npm run build
 ```
 
 Can download manga from sites:
@@ -17,4 +16,4 @@ Can download manga from sites:
 * http://mangago.me
 * http://www.mangareader.net
 * http://www.mangapanda.com
-* http://readms.com
+* http://readms.net

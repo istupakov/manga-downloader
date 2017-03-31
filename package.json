@@ -1,20 +1,30 @@
 {
-    "name": "manga-downloader",
-    "version": "1.3.2",
-    "description": "Chrome extension for download manga to zip archives",
-    "author": "Ilya Stupakov",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/istupakov/manga-downloader.git"
-    },
-    "main": "./src/manga.ts",
-    "typings": "./src/manga.ts",
-    "devDependencies": {
-        "gulp": "^3.9.0",
-        "main-bower-files": "^2.11.0",
-        "ts-loader": "^0.7.2",
-        "typescript": "^1.7.5",
-        "webpack": "^1.12.9"
-    }
+  "name": "manga-downloader",
+  "version": "1.4.0",
+  "description": "Chrome extension for download manga to zip archives",
+  "author": "Ilya Stupakov",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/istupakov/manga-downloader.git"
+  },
+  "main": "./src/manga.ts",
+  "scripts": {
+    "build": "./node_modules/.bin/webpack",
+    "watch": "./node_modules/.bin/webpack --progress --watch"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^4.0.1",
+    "source-map-loader": "^0.2.1",
+    "ts-loader": "^2.0.3",
+    "typescript": "^2.2.2",
+    "webpack": "^2.3.2"
+  },
+  "dependencies": {
+    "@types/chrome": "0.0.44",
+    "@types/jquery": "^2.0.41",
+    "@types/jszip": "0.0.32",
+    "jquery": "^3.2.1",
+    "jszip": "^3.1.3"
+  }
 }

@@ -1,7 +1,6 @@
-'use strict';
-
-import {getJQuery} from './../utils';
-import {Parser, MangaUrl} from './../manga';
+import * as $ from 'jquery';
+import { getJQuery } from './../utils';
+import { Parser, MangaUrl } from './../manga';
 
 class MangaStream implements Parser {
     parseUrl(url: string) {
@@ -14,10 +13,10 @@ class MangaStream implements Parser {
         let chapter = await getJQuery(url);
 
         let lastPageUrl = $(chapter.find('.subnav ul').get(1)).find('a').last().attr('href');
-        let urlParts = lastPageUrl.match('(.*/)([0-9]+)');
+        let urlParts = lastPageUrl.match('(.*/)([0-9]+)')!;
         let pagesUrls = Array(parseInt(urlParts[2])).fill(0).map((v, i) => urlParts[1] + (i + 1));
         let pages = await getJQuery(pagesUrls);
-        return pages.map(page => page.find('a img').attr('src'));
+        return pages.map(page => new URL(page.find('a img').attr('src'), url).href);
     }
 
     async parseManga(url: string) {
@@ -40,7 +39,7 @@ class MangaStream implements Parser {
     }
 
     getSites() {
-        return ['readms.com', 'mangastream.com'];
+        return ['readms.com', 'readms.net', 'mangastream.com'];
     }
 }
 

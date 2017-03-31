@@ -1,5 +1,4 @@
-'use strict';
-
+import * as $ from 'jquery';
 import {getJQuery} from './../utils';
 import {Parser, MangaUrl} from './../manga';
 
@@ -23,7 +22,7 @@ class MangaGo implements Parser {
 
         return {
             url,
-            name: catalog.find('.manga_title h1').text().trim(),
+            name: catalog.find('h1').text().trim(),
             coverUrl: catalog.find('.cover img').attr('src'),
             chapterList: chapters.map(chapter => ({
                 url: chapter.attr('href'),

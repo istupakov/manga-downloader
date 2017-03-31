@@ -1,5 +1,3 @@
-'use strict';
-
 export interface Parser {
     parseUrl(url: string): MangaUrl;
     parseManga(url: string): Promise<Manga>;
@@ -37,7 +35,7 @@ export class MangaUrl {
     constructor(url: string, mangaRegEx: string, chapterRegEx: string) {
         let site = 'http://[^/]+';
         return {
-            siteUrl: url.match(site)[0],
+            siteUrl: url.match(site)![0],
             mangaUrl: (url.match(site + mangaRegEx) || [])[0],
             chapterUrl: (url.match(site + mangaRegEx + chapterRegEx) || [])[0]
         }
@@ -64,9 +62,9 @@ class DefaultParser implements Parser {
         if (manga.chapterList.every(chapter => chapter.volume != undefined)) {
             let volumes: { [index: string]: Chapter[] } = {};
             for (let chapter of manga.chapterList.filter(chapter => chapter.volume != undefined)) {
-                if (!volumes[chapter.volume])
-                    volumes[chapter.volume] = [];
-                volumes[chapter.volume].push(chapter);
+                if (!volumes[chapter.volume!])
+                    volumes[chapter.volume!] = [];
+                volumes[chapter.volume!].push(chapter);
             }
             manga.volumeList = Object.keys(volumes).map(key => ({ name: key, chapterList: volumes[key] }));
         }

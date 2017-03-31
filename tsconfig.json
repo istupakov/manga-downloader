@@ -1,12 +1,21 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es2015",
+        "module": "es2015",
+        "alwaysStrict": true,
         "noImplicitAny": true,
-        "sourceMap": true
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "strictNullChecks": true,
+        "noEmitOnError": true,
+        "removeComments": false,
+        "sourceMap": true,
+        "target": "es2016",
+        "lib": [
+            "dom",
+            "es2016"
+        ]
     },
     "exclude": [
-        "node_modules",
-        "release"
+        "node_modules"
     ]
 }

@@ -1,7 +1,7 @@
-'use strict';
-
-import {Manga, Chapter, default as parser} from './manga';
-import {delay, getAsArrayBuffer} from './utils'
+import { Manga, Chapter, default as parser } from './manga';
+import { delay, getAsBlob } from './utils'
+import * as $ from 'jquery';
+import * as JSZip from 'jszip'
 
 function download(url: string, filename: string) {
     return new Promise<void>(resolve => chrome.downloads.download({ url, filename }, id => resolve()));
@@ -9,7 +9,7 @@ function download(url: string, filename: string) {
 
 function getCurrentUrl() {
     return new Promise<string>(resolve => chrome.tabs.query({ active: true },
-        tabs => resolve(tabs.find(tab => tab.url != undefined).url)));
+        tabs => resolve(tabs.find(tab => tab.url != undefined)!.url)));
 }
 
 function paddedNumber(index: number) {
@@ -77,7 +77,7 @@ class Downloader {
     }
 
     private async saveZip(zip: JSZip, filename: string) {
-        let zipUrl = window.URL.createObjectURL(zip.generate({ type: 'blob' }));
+        let zipUrl = window.URL.createObjectURL(await zip.generateAsync({ type: 'blob' }));
         await download(zipUrl, `manga/${toFilename(filename)}.zip`);
         window.URL.revokeObjectURL(zipUrl);
     }
@@ -89,7 +89,7 @@ class Downloader {
             let index = 0;
             for (let url of urls) {
                 progress.text(`download page: ${++index}/${urls.length} from ${chapter.name}`);
-                zip.file(`${paddedNumber(index)}.jpg`, await getAsArrayBuffer(url, true));
+                zip.file(`${paddedNumber(index)}.jpg`, await getAsBlob(url, true));
                 await delay(parser.getDelay(chapter.url));
             }
         } finally {
@@ -113,8 +113,8 @@ async function initPopup() {
         }
 
         if (false && manga.volumeList) {
-            $('#chapterList').append(manga.volumeList.map(volume => $('<optgroup>').attr({ label: volume.name })
-                .append(volume.chapterList.map(((chapter, i) => $('<option>').val(chapter.url).text(chapter.name))))));
+            //$('#chapterList').append(manga.volumeList!.map(volume => $('<optgroup>').attr({ label: volume.name })
+            //    .append(volume.chapterList.map(((chapter, i) => $('<option>').val(chapter.url).text(chapter.name))))));
         } else {
             $('#chapterList').append(manga.chapterList.map((chapter, i) => $('<option>').val(i).text(chapter.name)));
         }
@@ -124,7 +124,7 @@ async function initPopup() {
         $('#downloadSelected2').click(() => main.downloadMultiple2());
 
         if (manga.currentChapter) {
-            $('#downloadCurrent').click(() => main.download(manga.currentChapter)).show();
+            $('#downloadCurrent').click(() => main.download(manga.currentChapter!)).show();
         }
 
         $('#loadingMessage').hide();

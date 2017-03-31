@@ -1,5 +1,4 @@
-'use strict';
-
+import * as $ from 'jquery';
 import {getJQuery} from './../utils';
 import {Parser, MangaUrl} from './../manga';
 

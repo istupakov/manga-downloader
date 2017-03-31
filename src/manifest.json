@@ -2,13 +2,13 @@
   "manifest_version": 2,
   "name": "Manga Downloader",
   "author": "Ilya Stupakov",
-  "version": "1.3.2",
-  "version_name": "1.3.2",
+  "version": "1.4.0",
+  "version_name": "1.4.0",
   "description": "Download manga chapters to zip archives",
   "icons": {"128": "manga.png"},
   "permissions": ["activeTab", "downloads", "webNavigation", "http://*/"],
   "background": {
-    "scripts": ["manga.js", "background.js"],
+    "scripts": ["webpack.js", "vendors.js", "background.js"],
     "persistent": false
   },
   "page_action": {
